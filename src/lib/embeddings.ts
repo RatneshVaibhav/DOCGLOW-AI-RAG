@@ -1,32 +1,32 @@
-import { pipeline } from "@xenova/transformers";
+import OpenAI from "openai";
 
-const getExtractor = (() => {
-  let extractorPromise: Promise<any> | null = null;
-  return () => {
-    if (!extractorPromise) {
-      extractorPromise = pipeline("feature-extraction", "Xenova/all-MiniLM-L6-v2");
-    }
-    return extractorPromise;
-  };
-})();
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
 
 export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
-  const extractor = await getExtractor();
+  const batchSize = 100;
   const allEmbeddings: number[][] = [];
 
-  for (let text of texts) {
-    const output = await extractor(text, { pooling: "mean", normalize: true });
-    allEmbeddings.push(Array.from(output.data));
+  for (let i = 0; i < texts.length; i += batchSize) {
+    const batch = texts.slice(i, i + batchSize);
+    const response = await openai.embeddings.create({
+      model: "text-embedding-3-small",
+      input: batch,
+    });
+    allEmbeddings.push(...response.data.map((d) => d.embedding));
   }
 
   return allEmbeddings;
 }
 
 export async function generateSingleEmbedding(text: string): Promise<number[]> {
-  const extractor = await getExtractor();
-  const output = await extractor(text, { pooling: "mean", normalize: true });
-  return Array.from(output.data);
+  const response = await openai.embeddings.create({
+    model: "text-embedding-3-small",
+    input: text,
+  });
+  return response.data[0].embedding;
 }
 
-// Xenova/all-MiniLM-L6-v2 produces 384-dimensional vectors
-export const EMBEDDING_DIMENSION = 384;
+// text-embedding-3-small produces 1536-dimensional vectors
+export const EMBEDDING_DIMENSION = 1536;

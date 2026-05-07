@@ -4,8 +4,7 @@ import { searchSimilar, SearchResult } from "./qdrant";
 import { SYSTEM_PROMPT, buildContextPrompt } from "./prompts";
 
 const openai = new OpenAI({
-  apiKey: process.env.XAI_API_KEY,
-  baseURL: "https://api.x.ai/v1",
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
 export interface RAGResponse {
@@ -34,7 +33,7 @@ export async function ragQuery(
 
   // 4. Call OpenAI with streaming
   const response = await openai.chat.completions.create({
-    model: "grok-beta",
+    model: "gpt-4o-mini",
     stream: true,
     temperature: 0.1,
     max_tokens: 2048,

@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   experimental: {
-    serverComponentsExternalPackages: ["pdf-parse", "sharp", "onnxruntime-node"],
+    serverComponentsExternalPackages: ["pdf-parse"],
   },
   webpack: (config, { isServer }) => {
     if (!isServer) {
@@ -17,11 +17,6 @@ const nextConfig = {
     if (isServer) {
       config.externals.push("canvas");
     }
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      "sharp$": false,
-      "onnxruntime-node$": false,
-    };
     return config;
   },
 };

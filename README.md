@@ -1,74 +1,41 @@
 # DocGlow AI
 
-> A premium NotebookLM-style RAG application — upload documents, chat with them using grounded AI answers.
+> A premium, cinematic NotebookLM-style RAG application — upload documents, chat with them using grounded AI answers with source-cited facts.
 
 ![DocGlow AI](https://img.shields.io/badge/DocGlow-AI-00d4ff?style=for-the-badge&logo=sparkles&logoColor=white)
 ![Next.js](https://img.shields.io/badge/Next.js-14-black?style=flat-square&logo=next.js)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat-square&logo=typescript)
-![Tailwind](https://img.shields.io/badge/Tailwind-3.4-38bdf8?style=flat-square&logo=tailwindcss)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript)
+![Tailwind](https://img.shields.io/badge/Tailwind-3-38bdf8?style=flat-square&logo=tailwindcss)
+![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4o--Mini-41adff?style=flat-square&logo=openai)
 
 ---
 
 ## ✨ Features
 
-- **Upload Documents** — Drag & drop PDF or TXT files with beautiful upload animations
-- **Full RAG Pipeline** — Parse → Chunk → Embed → Store → Retrieve → Generate
-- **Streaming Chat** — Real-time streaming responses with markdown rendering
-- **Source Citations** — See exactly which chunks the AI used to answer
-- **3D Visuals** — Interactive Three.js particle galaxy with mouse tracking
-- **Premium UI** — Glassmorphism, animated gradients, glow effects
-- **Dark Mode** — Futuristic dark theme throughout
+- **Document Intelligence** — Drag & drop PDF or TXT files with real-time extraction and indexing.
+- **Cinematic UI/UX** — Immersive glassmorphism, animated gradients, and high-fidelity micro-interactions.
+- **3D Hero Scene** — Interactive Three.js particle galaxy with mouse tracking and holographic orbs.
+- **Full RAG Pipeline** — Automatic parsing, recursive chunking, vector embedding, and similarity retrieval.
+- **Verified Answers** — AI responses are strictly grounded in your documents with precise source citations.
+- **Streaming Chat** — Real-time response streaming with full Markdown support and code highlighting.
+- **Mobile Responsive** — Optimized experience across all screen sizes with adaptive layouts.
 
 ---
 
 ## 🏗️ Architecture
 
-```
-User uploads document
-        │
-        ▼
-  ┌─────────────┐
-  │  PDF/TXT    │  Text extraction (pdf-parse)
-  │  Parser     │
-  └──────┬──────┘
-         │
-         ▼
-  ┌─────────────┐
-  │  Chunker    │  RecursiveCharacterTextSplitter
-  │  1000/200   │  (chunkSize/overlap)
-  └──────┬──────┘
-         │
-         ▼
-  ┌─────────────┐
-  │  Embeddings │  text-embedding-3-small (1536d)
-  │  OpenAI     │
-  └──────┬──────┘
-         │
-         ▼
-  ┌─────────────┐
-  │  Qdrant     │  Vector storage with metadata
-  │  Cloud      │
-  └─────────────┘
-
-User asks question
-        │
-        ▼
-  ┌─────────────┐
-  │  Embed      │  Query → embedding
-  │  Query      │
-  └──────┬──────┘
-         │
-         ▼
-  ┌─────────────┐
-  │  Retrieve   │  Similarity search (top 5)
-  │  Chunks     │
-  └──────┬──────┘
-         │
-         ▼
-  ┌─────────────┐
-  │  GPT-4.1    │  Grounded generation
-  │  Mini       │  with streaming
-  └─────────────┘
+```mermaid
+graph TD
+    A[User Uploads File] --> B[PDF/TXT Parser]
+    B --> C[Recursive Chunker]
+    C --> D[OpenAI Embeddings]
+    D --> E[Qdrant Cloud]
+    
+    F[User Query] --> G[OpenAI Query embedding]
+    G --> H[Similarity Search]
+    H --> I[Vector DB Context Retrieval]
+    I --> J[GPT-4o Mini Generation]
+    J --> K[Streaming Verified Answer]
 ```
 
 ---
@@ -78,8 +45,8 @@ User asks question
 ### Prerequisites
 
 - Node.js 18+
-- Grok API key (from xAI)
-- Qdrant Cloud account (free tier works)
+- OpenAI API Key
+- Qdrant Cloud Cluster (Free tier works perfectly)
 
 ### 1. Clone & Install
 
@@ -91,14 +58,10 @@ npm install
 
 ### 2. Configure Environment
 
-```bash
-cp .env.example .env.local
-```
-
-Edit `.env.local`:
+Create a `.env.local` file in the root directory:
 
 ```env
-XAI_API_KEY=xai-...
+OPENAI_API_KEY=sk-...
 QDRANT_URL=https://your-cluster.qdrant.io:6333
 QDRANT_API_KEY=your-qdrant-api-key
 ```
@@ -109,7 +72,7 @@ QDRANT_API_KEY=your-qdrant-api-key
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) to experience DocGlow AI.
 
 ---
 
@@ -118,97 +81,47 @@ Open [http://localhost:3000](http://localhost:3000).
 ```
 src/
 ├── app/
-│   ├── page.tsx              # Main page (landing + dashboard)
-│   ├── layout.tsx            # Root layout with metadata
-│   ├── globals.css           # Design system & animations
-│   └── api/
-│       ├── upload/route.ts   # File upload + RAG ingestion
-│       └── chat/route.ts     # Streaming chat endpoint
+│   ├── api/                  # Backend endpoints (Upload, Chat)
+│   ├── page.tsx              # Unified landing & dashboard
+│   └── globals.css           # Cinematic design system & animations
 ├── components/
-│   ├── hero.tsx              # Landing hero section
-│   ├── hero-3d.tsx           # Three.js particle scene
-│   ├── upload-zone.tsx       # Drag & drop upload
-│   ├── chat-panel.tsx        # Chat interface
-│   ├── message-bubble.tsx    # Chat message component
-│   ├── source-card.tsx       # Collapsible source card
-│   ├── sources-panel.tsx     # Right drawer for sources
-│   ├── sidebar.tsx           # Left sidebar (doc info)
-│   ├── loading-state.tsx     # Processing indicators
-│   ├── animated-background.tsx # Ambient glow blobs
-│   └── glowing-button.tsx    # Reusable button
+│   ├── hero-3d.tsx           # Three.js galaxy scene
+│   ├── upload-zone.tsx       # Animated document ingestor
+│   ├── chat-panel.tsx        # Immersive chat interface
+│   └── sidebar.tsx           # Document metadata & info
 ├── lib/
-│   ├── rag.ts                # RAG orchestration
-│   ├── pdf.ts                # Text extraction
-│   ├── chunking.ts           # Text splitting
-│   ├── embeddings.ts         # OpenAI embeddings
-│   ├── qdrant.ts             # Vector DB client
-│   ├── vector.ts             # Storage helper
-│   ├── prompts.ts            # System prompt
-│   └── utils.ts              # Utility functions
-└── types/
-    ├── chat.ts               # Chat types
-    └── document.ts           # Document types
+│   ├── rag.ts                # RAG pipeline orchestration
+│   ├── embeddings.ts         # OpenAI embedding integration
+│   ├── qdrant.ts             # Vector database management
+│   └── prompts.ts            # System instructions for grounding
+└── types/                    # Unified type definitions
 ```
 
 ---
 
 ## 🧠 RAG Strategy
 
-### Chunking
+### Ingestion Pipeline
+- **Chunking**: `RecursiveCharacterTextSplitter` (1000 chars, 200 overlap) for context preservation.
+- **Embeddings**: `text-embedding-3-small` (1536-dimensional vectors) for high performance.
+- **Vector Storage**: Qdrant Cloud with payload metadata including chunk index and file info.
 
-- **Splitter**: `RecursiveCharacterTextSplitter`
-- **Chunk Size**: 1000 characters
-- **Overlap**: 200 characters
-- **Separators**: `\n\n`, `\n`, `. `, ` `, ``
-
-### Embeddings
-
-- **Model**: `all-MiniLM-L6-v2` (Local via Transformers.js)
-- **Dimensions**: 384
-- **Mode**: Local processing (Free)
-
-### Retrieval
-
-- **Method**: Cosine similarity search
-- **Top K**: 5 chunks
-- **Filtering**: By `documentId` for namespace isolation
-
-### Generation
-
-- **Model**: `grok-beta`
-- **Temperature**: 0.1 (factual)
-- **Streaming**: Yes
-- **Grounding**: Strict — only answers from context
+### Retrieval & Generation
+- **Search**: Cosine similarity retrieval (Top 5 chunks per query).
+- **Security**: Namespace isolation via `documentId` filtering.
+- **Model**: `gpt-4o-mini` with a temperature of `0.1` for maximum factual accuracy.
+- **Grounding**: Strict system prompt instructions to prevent hallucinations.
 
 ---
 
-## 🌐 Deploy to Vercel
+## 🌐 Deployment
 
-```bash
-npm i -g vercel
-vercel
-```
+DocGlow AI is optimized for Vercel deployment:
 
-Set environment variables in Vercel dashboard:
-
-- `OPENAI_API_KEY`
-- `QDRANT_URL`
-- `QDRANT_API_KEY`
-
----
-
-## 🔮 Future Improvements
-
-- [ ] Multi-document support
-- [ ] Conversation memory / history
-- [ ] Document comparison mode
-- [ ] OCR for scanned PDFs
-- [ ] User authentication
-- [ ] Usage analytics
-- [ ] DOCX/PPTX support
-- [ ] Export chat as PDF
-- [ ] Reranking with Cohere
-- [ ] Hybrid search (keyword + semantic)
+1. Push your code to GitHub.
+2. Import project to Vercel.
+3. Configure `OPENAI_API_KEY`, `QDRANT_URL`, and `QDRANT_API_KEY` in Environment Variables.
+4. Deploy!
 
 ---
 
@@ -218,4 +131,4 @@ MIT
 
 ---
 
-Built with ❤️ using Next.js, OpenAI, Qdrant, and Three.js
+Built with ❤️ by the DocGlow AI Team.
