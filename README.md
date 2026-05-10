@@ -114,17 +114,6 @@ src/
 
 ---
 
-## 🌐 Deployment
-
-DocGlow AI is optimized for Vercel deployment:
-
-1. Push your code to GitHub.
-2. Import project to Vercel.
-3. Configure `OPENAI_API_KEY`, `QDRANT_URL`, and `QDRANT_API_KEY` in Environment Variables.
-4. Deploy!
-
----
-
 ## 📄 License
 
 MIT
