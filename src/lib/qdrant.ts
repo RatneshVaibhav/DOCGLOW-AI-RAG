@@ -3,9 +3,19 @@ import { EMBEDDING_DIMENSION } from "./embeddings";
 import { DocumentChunk } from "@/types/document";
 
 function getClient(): QdrantClient {
+  const url = process.env.QDRANT_URL;
+  const apiKey = process.env.QDRANT_API_KEY;
+  if (!url || !apiKey) {
+    throw new Error(
+      "QDRANT_URL and QDRANT_API_KEY must be set in your environment variables."
+    );
+  }
   return new QdrantClient({
-    url: process.env.QDRANT_URL!,
-    apiKey: process.env.QDRANT_API_KEY!,
+    url,
+    apiKey,
+    // The server-version probe adds a failing round-trip and noisy logs on
+    // managed clusters; skip it.
+    checkCompatibility: false,
   });
 }
 
@@ -13,7 +23,19 @@ const COLLECTION_NAME = "docglow_documents";
 
 export async function ensureCollection(): Promise<void> {
   const client = getClient();
-  const collections = await client.getCollections();
+  let collections;
+  try {
+    collections = await client.getCollections();
+  } catch (err) {
+    // A 404 / connection failure here almost always means QDRANT_URL points at
+    // a cluster that no longer exists (e.g. a free-tier cluster that was
+    // suspended for inactivity). Surface something actionable.
+    const detail = err instanceof Error ? err.message : String(err);
+    throw new Error(
+      `Could not reach Qdrant at ${process.env.QDRANT_URL}. ` +
+        `Verify the cluster is running and QDRANT_URL / QDRANT_API_KEY are correct. (${detail})`
+    );
+  }
   const exists = collections.collections.some(
     (c) => c.name === COLLECTION_NAME
   );
