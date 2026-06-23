@@ -4,6 +4,9 @@ import { chunkText } from "@/lib/chunking";
 import { storeChunksInVectorDB } from "@/lib/vector";
 import { v4 as uuidv4 } from "uuid";
 
+// pdf-parse and the Qdrant client rely on Node APIs (fs, Buffer), so this route
+// must run on the Node.js runtime — never the Edge runtime.
+export const runtime = "nodejs";
 export const maxDuration = 60;
 
 export async function POST(request: NextRequest) {

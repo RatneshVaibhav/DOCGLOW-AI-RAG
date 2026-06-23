@@ -3,9 +3,21 @@ import { generateSingleEmbedding } from "./embeddings";
 import { searchSimilar, SearchResult } from "./qdrant";
 import { SYSTEM_PROMPT, buildContextPrompt } from "./prompts";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+// Lazily instantiate so OPENAI_API_KEY is only required at request time, not at
+// build/module-load time (the SDK constructor throws when the key is missing).
+let openaiClient: OpenAI | null = null;
+function getOpenAI(): OpenAI {
+  if (!openaiClient) {
+    const apiKey = process.env.OPENAI_API_KEY;
+    if (!apiKey) {
+      throw new Error(
+        "OPENAI_API_KEY is not set. Add it to your environment variables."
+      );
+    }
+    openaiClient = new OpenAI({ apiKey });
+  }
+  return openaiClient;
+}
 
 export interface RAGResponse {
   stream: ReadableStream;
@@ -32,7 +44,7 @@ export async function ragQuery(
   );
 
   // 4. Call OpenAI with streaming
-  const response = await openai.chat.completions.create({
+  const response = await getOpenAI().chat.completions.create({
     model: "gpt-4o-mini",
     stream: true,
     temperature: 0.1,

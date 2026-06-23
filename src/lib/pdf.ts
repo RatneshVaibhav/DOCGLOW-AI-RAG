@@ -1,4 +1,10 @@
-import pdfParse from "pdf-parse";
+// IMPORTANT: import the implementation directly, NOT the package root.
+// pdf-parse@1.1.1's index.js has a debug block that runs
+// `fs.readFileSync('./test/data/05-versions-space.pdf')` whenever
+// `module.parent` is falsy. In a Next.js / serverless bundle that is always the
+// case, so the package throws ENOENT at module-load time and every PDF upload
+// fails in production. The lib entry point skips that debug block entirely.
+import pdfParse from "pdf-parse/lib/pdf-parse.js";
 
 export interface ExtractedText {
   text: string;
