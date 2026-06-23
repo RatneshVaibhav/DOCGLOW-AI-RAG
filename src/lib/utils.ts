@@ -14,6 +14,7 @@ export function formatFileSize(bytes: number): string {
 }
 
 export function truncateText(text: string, maxLength: number): string {
+  if (!text) return "";
   if (text.length <= maxLength) return text;
   return text.substring(0, maxLength) + "...";
 }

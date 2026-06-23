@@ -16,8 +16,19 @@ export async function POST(request: NextRequest) {
 
     const { stream, sources } = await ragQuery(query, documentId);
 
+    // The vector store returns chunks with a `text` field, but the client's
+    // RetrievedSource type (and SourceCard) expect `chunkText`. Map to the
+    // client shape so the sources panel can render without crashing.
+    const clientSources = sources.map((s) => ({
+      chunkText: s.text,
+      score: s.score,
+      pageNumber: s.pageNumber,
+      chunkIndex: s.chunkIndex,
+      fileName: s.fileName,
+    }));
+
     // Encode sources as a header so they arrive before the stream
-    const sourcesHeader = Buffer.from(JSON.stringify(sources)).toString("base64");
+    const sourcesHeader = Buffer.from(JSON.stringify(clientSources)).toString("base64");
 
     return new Response(stream, {
       headers: {
